@@ -1,0 +1,96 @@
+/* ===== COMMON STYLES (ALL PAGES) ===== */
+body {
+  font-family: 'Poppins', sans-serif;
+  animation: fadeIn 0.6s ease-in;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 6px rgba(40, 167, 69, 0.5);
+}
+
+/* ===== LOGIN PAGE ===== */
+.login-page {
+  background: linear-gradient(to right, #56ab2f, #a8e063);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* ===== REGISTER PAGE ===== */
+.register-page {
+  background: linear-gradient(to right, #43cea2, #185a9d);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-card {
+  max-width: 450px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* ===== DASHBOARD PAGE ===== */
+.dashboard-page {
+  background-color: #f4fdf6;
+}
+
+/* ===== COMPLAINT PAGE ===== */
+.complaint-page {
+  background-color: #f8f9fa;
+}
+
+/* ===== ADMIN PAGE ===== */
+.admin-page {
+  background-color: #ffffff;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ===== TABLE ===== */
+table {
+  border-radius: 10px;
+  overflow: hidden;
+}
