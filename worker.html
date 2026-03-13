@@ -1,72 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Safai Setu | Worker Dashboard</title>
+<meta charset="UTF-8">
+<title>Safai Setu | Worker Dashboard</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-
-  <!-- Common CSS -->
-  <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="admin-page">
+<body>
 
-  <nav class="navbar navbar-dark bg-success px-4">
-    <span class="navbar-brand fw-bold">Safai Setu</span>
-    <a href="index.html" class="btn btn-light btn-sm">Logout</a>
-  </nav>
+<script>
+if(localStorage.getItem("role")!=="worker"){
+alert("Access Denied");
+window.location.href="login.html";
+}
+</script>
 
-  <div class="container mt-5">
-    <h4 class="mb-4">Worker Dashboard</h4>
+<nav class="navbar navbar-dark bg-success px-4">
+<span class="navbar-brand fw-bold">Safai Setu | Worker</span>
+<button onclick="logout()" class="btn btn-light btn-sm">Logout</button>
+</nav>
 
-    <div class="card shadow">
-      <div class="card-body">
+<div class="container mt-5">
 
-        <table class="table table-striped table-hover align-middle">
-          <thead class="table-success">
-            <tr>
-              <th>Before Photo</th>
-              <th>Complaint ID</th>
-              <th>Location</th>
-              <th>Status</th>
-              <th>Upload Cleaned Photo</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+<h4>Assigned Work</h4>
 
-          <tbody>
-            <tr>
-              <td>
-                <img src="https://via.placeholder.com/60"
-                     class="img-thumbnail"
-                     width="60" height="60">
-              </td>
-              <td>101</td>
-              <td>College Road</td>
-              <td>
-                <span class="badge bg-warning text-dark">Assigned</span>
-              </td>
-              <td>
-                <input type="file" class="form-control form-control-sm">
-              </td>
-              <td>
-                <button class="btn btn-success btn-sm">
-                  Mark as Completed
-                </button>
-              </td>
-            </tr>
+<table class="table table-bordered">
 
-          </tbody>
-        </table>
+<thead class="table-success">
+<tr>
+<th>Before Photo</th>
+<th>ID</th>
+<th>Location</th>
+<th>Status</th>
+<th>Upload</th>
+<th>Action</th>
+</tr>
+</thead>
 
-      </div>
-    </div>
-  </div>
+<tbody id="workTable"></tbody>
+
+</table>
+
+</div>
+
+
+<script>
+
+fetch("http://127.0.0.1:5001/complaints")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+let table=document.getElementById("workTable")
+
+data.forEach(c=>{
+
+if(c.status==="Assigned to Worker"){
+
+let row=document.createElement("tr")
+
+row.innerHTML=`
+
+<td>
+<img src="http://127.0.0.1:5001/${c.before_image}" width="60">
+</td>
+
+<td>${c.id}</td>
+
+<td>${c.location}</td>
+
+<td>${c.status}</td>
+
+<td>
+<input type="file" id="photo_${c.id}">
+</td>
+
+<td>
+<button class="btn btn-success btn-sm"
+onclick="completeWork(${c.id})">
+
+Complete
+
+</button>
+</td>
+`
+
+table.appendChild(row)
+
+}
+
+})
+
+})
+
+
+function completeWork(id){
+
+let file=document.getElementById("photo_"+id).files[0]
+
+let formData=new FormData()
+
+formData.append("complaint_id",id)
+formData.append("photo",file)
+
+fetch("http://127.0.0.1:5001/complete_complaint",{
+
+method:"POST",
+body:formData
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+alert(data.message)
+location.reload()
+})
+
+}
+
+
+function logout(){
+localStorage.clear()
+window.location.href="index.html"
+}
+function sendWorkerLocation(){
+
+navigator.geolocation.getCurrentPosition(function(position){
+
+let lat = position.coords.latitude
+let lon = position.coords.longitude
+
+let worker = localStorage.getItem("user_id")
+
+fetch("http://127.0.0.1:5001/worker_location",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+worker_id:worker,
+latitude:lat,
+longitude:lon
+
+})
+
+})
+
+})
+
+}
+
+setInterval(sendWorkerLocation,10000)
+</script>
 
 </body>
 </html>

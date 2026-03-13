@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Safai Setu | Incharge Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:Poppins;
+background:#f4f7f9;
+}
+</style>
+
+</head>
+
+<body>
+
+<script>
+if(localStorage.getItem("role")!=="incharge"){
+alert("Access Denied");
+window.location.href="login.html";
+}
+</script>
+
+<nav class="navbar navbar-dark bg-success px-4">
+<span class="navbar-brand fw-bold">Safai Setu | Incharge</span>
+<button onclick="logout()" class="btn btn-light btn-sm">Logout</button>
+</nav>
+
+<div class="container mt-5">
+
+<h4 class="mb-4">Assigned Complaints</h4>
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-success">
+<tr>
+<th>Photo</th>
+<th>ID</th>
+<th>Location</th>
+<th>Status</th>
+<th>Assign Worker</th>
+</tr>
+</thead>
+
+<tbody id="complaintTable"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+fetch("http://127.0.0.1:5001/complaints")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+let table=document.getElementById("complaintTable")
+
+table.innerHTML=""
+
+data.forEach(c => {
+
+if(c.status === "Assigned to Incharge" || c.status === "Assigned to Worker"){
+
+let row = document.createElement("tr");
+
+row.innerHTML = `
+
+<td>
+<img src="http://127.0.0.1:5001/${c.before_image}" width="60">
+</td>
+
+<td>${c.id}</td>
+
+<td>${c.location}</td>
+
+<td>
+<span class="badge ${c.status === "Assigned to Worker" ? "bg-info" : "bg-warning"}">
+${c.status}
+</span>
+</td>
+
+<td>
+
+${c.status === "Assigned to Incharge" ? `
+
+<select id="worker_${c.id}" class="form-select form-select-sm mb-1">
+
+<option value="4">Worker1</option>
+<option value="5">Worker2</option>
+<option value="6">Worker3</option>
+<option value="7">Worker4</option>
+<option value="8">Worker5</option>
+<option value="9">Worker6</option>
+<option value="10">Worker7</option>
+<option value="11">Worker8</option>
+<option value="12">Worker9</option>
+<option value="13">Worker10</option>
+
+</select>
+
+<button class="btn btn-success btn-sm"
+onclick="assignWorker(${c.id})">
+Assign
+</button>
+
+` : `<span class="badge bg-secondary">Worker Assigned</span>`}
+
+</td>
+
+`;
+
+table.appendChild(row);
+
+}
+
+})
+
+})
+
+
+function assignWorker(id){
+
+let worker=document.getElementById("worker_"+id).value
+
+fetch("http://127.0.0.1:5001/assign_worker",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+complaint_id:id,
+worker_id:worker
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+alert(data.message)
+location.reload()
+})
+
+}
+
+
+function logout(){
+localStorage.clear()
+window.location.href="index.html"
+}
+
+</script>
+
+</body>
+</html>

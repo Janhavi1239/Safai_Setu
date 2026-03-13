@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Safai Setu | Login</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+body{
+background: linear-gradient(135deg,#56ab2f,#a8e063);
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+font-family:'Poppins',sans-serif;
+}
+
+.login-box{
+background:white;
+padding:35px;
+border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+width:380px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+<h3 class="text-center mb-3">Safai Setu Login</h3>
+
+<form id="loginForm">
+
+<label class="form-label">Email</label>
+
+<input type="email" id="email" class="form-control mb-3" required>
+
+<label class="form-label">Password</label>
+
+<input type="password" id="password" class="form-control mb-4" required>
+
+<button type="submit" class="btn btn-success w-100">
+Login
+</button>
+
+</form>
+
+<p id="message" class="mt-3 text-center text-danger"></p>
+
+</div>
+
+<script>
+
+// Get role from URL
+const params = new URLSearchParams(window.location.search);
+const roleFromUrl = params.get("role");
+
+document.getElementById("loginForm").addEventListener("submit",function(e){
+
+e.preventDefault();
+
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+
+fetch("http://127.0.0.1:5001/login",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+email:email,
+password:password
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(data.role){
+
+// Save login info
+localStorage.setItem("role",data.role);
+localStorage.setItem("user_id",data.user_id);
+
+// Redirect based on role
+if(data.role==="admin"){
+window.location.href="admin.html";
+}
+
+else if(data.role==="incharge"){
+window.location.href="incharge.html";
+}
+
+else if(data.role==="worker"){
+window.location.href="worker.html";
+}
+
+}
+
+else{
+document.getElementById("message").innerText="Invalid login";
+}
+
+})
+
+.catch(err=>{
+document.getElementById("message").innerText="Server error";
+});
+
+});
+
+</script>
+
+</body>
+
+</html>

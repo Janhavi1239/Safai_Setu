@@ -1,37 +1,240 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Safai Setu | Login</title>
+<meta charset="UTF-8">
+<title>Safai Setu | Report Garbage</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 
-  <!-- Common CSS -->
-  <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css">
+
 </head>
 
-<body class="login-page">
+<body class="home-page">
 
-  <div class="login-card text-center">
-    <h3 class="mb-3">Safai Setu</h3>
-    <p class="text-muted">Clean City, Smart System</p>
+<div class="container main-card mt-5">
 
-    <input type="email" class="form-control mb-3" placeholder="Email">
-    <input type="password" class="form-control mb-3" placeholder="Password">
+<div class="row align-items-center">
 
-    <!-- UI demo navigation -->
-    <a href="dashboard.html" class="btn btn-success w-100">Login</a>
+<!-- LEFT LOGO -->
 
-    <p class="mt-3">
-      New user? <a href="register.html">Register</a>
-    </p>
-  </div>
+<div class="col-md-5 text-center">
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<div class="logo-box">
+<img src="static/Logo.jpg" class="img-fluid">
+</div>
+
+</div>
+
+<!-- RIGHT FORM -->
+
+<div class="col-md-7">
+
+<!-- LOGIN DROPDOWN -->
+
+<div class="d-flex justify-content-end mb-3">
+
+<div class="dropdown">
+
+<button class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+Login
+</button>
+
+<ul class="dropdown-menu">
+
+<li><a class="dropdown-item" href="login.html?role=admin">Admin Login</a></li>
+
+<li><a class="dropdown-item" href="login.html?role=incharge">Incharge Login</a></li>
+
+<li><a class="dropdown-item" href="login.html?role=worker">Worker Login</a></li>
+
+</ul>
+
+</div>
+
+</div>
+
+<h4 class="mb-3">Report Garbage Issue</h4>
+
+<form id="complaintForm">
+
+<label class="form-label">Upload Photo</label> <input type="file" id="photo" class="form-control mb-3" required>
+
+<label class="form-label">Location</label> <input type="text" id="location" class="form-control mb-3" placeholder="Detecting GPS location..." required readonly>
+
+<label class="form-label">Zone</label>
+
+<select id="zone" class="form-control mb-3" required>
+<option value="West Nashik">West Nashik</option>
+<option value="Panchavati">Panchavati</option>
+</select>
+
+<label class="form-label">Description</label>
+
+<textarea id="description" class="form-control mb-3" required></textarea>
+
+<label class="form-label">Captcha</label>
+
+<div class="input-group mb-3">
+
+<span id="captchaText" class="input-group-text fw-bold"></span>
+
+<input type="text" id="captchaInput" class="form-control" placeholder="Enter Captcha">
+
+<button type="button" class="btn btn-outline-secondary" onclick="generateCaptcha()">🔄</button>
+
+</div>
+
+<button type="submit" class="btn btn-success w-100">
+Submit Complaint
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+/*  GPS LOCATION  */
+
+function getLocation(){
+
+if(!navigator.geolocation){
+
+alert("Geolocation is not supported by your browser");
+return;
+
+}
+
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+let lat = position.coords.latitude;
+let lon = position.coords.longitude;
+
+document.getElementById("location").value = lat + "," + lon;
+
+},
+
+function(error){
+
+alert("Please allow location access to report complaint");
+
+},
+
+{
+enableHighAccuracy:true,
+timeout:10000,
+maximumAge:0
+}
+
+);
+
+}
+
+window.onload = getLocation;
+
+
+
+/* - CAPTCHA - */
+
+var captchaValue="";
+
+function generateCaptcha(){
+
+const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+captchaValue="";
+
+for(let i=0;i<5;i++){
+
+captchaValue += chars.charAt(Math.floor(Math.random()*chars.length));
+
+}
+
+document.getElementById("captchaText").innerText = captchaValue;
+
+}
+
+generateCaptcha();
+
+
+
+/*  FORM SUBMIT */
+
+document.getElementById("complaintForm").addEventListener("submit",function(e){
+
+e.preventDefault();
+
+const userCaptcha = document.getElementById("captchaInput").value;
+
+if(userCaptcha !== captchaValue){
+
+alert("Captcha Incorrect");
+generateCaptcha();
+return;
+
+}
+
+const photo = document.getElementById("photo").files[0];
+const location = document.getElementById("location").value;
+const zone = document.getElementById("zone").value;
+const description = document.getElementById("description").value;
+
+if(!photo || !location || !description){
+
+alert("Missing data");
+return;
+
+}
+
+let formData = new FormData();
+
+formData.append("photo",photo);
+formData.append("location",location);
+formData.append("zone",zone);
+formData.append("description",description);
+
+fetch("http://127.0.0.1:5001/complaint",{
+
+method:"POST",
+body:formData
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+alert(data.message);
+
+document.getElementById("complaintForm").reset();
+
+generateCaptcha();
+getLocation();
+
+})
+
+.catch(()=>{
+
+alert("Server Error");
+
+});
+
+});
+
+</script>
+
 </body>
 </html>
